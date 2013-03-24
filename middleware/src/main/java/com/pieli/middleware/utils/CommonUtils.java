@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Properties;
 
 import junit.framework.Assert;
 
@@ -24,7 +25,7 @@ import junit.framework.Assert;
 public class CommonUtils {
 
 	private static final SimpleDateFormat _sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS");
-
+	private static final Properties _sysProps=System.getProperties();
 	
 	/**
 	 * 
@@ -95,6 +96,71 @@ public class CommonUtils {
 			count += 1;
 		}
 		return Arrays.copyOf(input.getBytes(), count * 512);
+	}
+	
+	/**
+	 * 
+	* @Title: isCurrentSystemWindows
+	* @Description: TODO
+	* @param @return
+	* @return boolean
+	* @throws
+	 */
+	public static boolean isCurrentSystemWindows(){
+		
+		String osName = null;
+		if((osName = _sysProps.getProperty("os.name")).toLowerCase().indexOf("windows") != -1){
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	* @Title: convertBytesToHexStr
+	* @Description: TODO
+	* @param @param input
+	* @param @return
+	* @return String
+	* @throws
+	 */
+	public static String convertBytesToHexStr(byte[] input){
+		if(input == null){
+			throw new IllegalArgumentException("input could not be null!");
+		}
+		StringBuilder result = new StringBuilder();
+		for(byte item: input){
+			String c = Integer.toHexString(item & 0xff);
+			result.append(c.length() == 1? "0" + c: c);
+		}
+		return result.toString();
+	}
+	
+	/**
+	 * 
+	* @Title: convertHexStrToBytes
+	* @Description: TODO
+	* @param @param input
+	* @param @return
+	* @return byte[]
+	* @throws
+	 */
+	public static byte[] convertHexStrToBytes(String input){
+		if(input == null){
+			throw new IllegalArgumentException("input could not be null!");
+		}
+		Assert.assertTrue(input.length() % 2 == 0);
+		
+		input = input.toLowerCase();
+		byte[] result = new byte[input.length() / 2];
+		for(int i = 0; i < result.length; i ++){
+			
+			byte high = (byte) (Character.digit(input.charAt(2 * i), 16) & 0xff);  
+	        byte low = (byte) (Character.digit(input.charAt(2 * i + 1), 16) & 0xff);  
+			
+			result[i] = (byte) (high << 4 | low);
+		}
+		return result;
 	}
 	
 }

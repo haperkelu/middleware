@@ -145,7 +145,7 @@ public class FileProviders {
 			public void run() {
 				
 				AsynchronousWriterQueue queue = (AsynchronousWriterQueue)GlobalData.get("AsynchronousWriterQueue");
-				while(true){
+				//while(true){
 					try {
 						try {
 							Thread.currentThread().sleep(10);
@@ -157,47 +157,27 @@ public class FileProviders {
 						message.setSentTime(CommonUtils.formatRightNow());
 						message.setTopic(topic);
 						message.setSegmentId(1);
+						BizData data = new BizData();
+						data.setF1(22);
+						data.setF2("field 222");
+						message.setBizData(data);
 						queue.pushItem(message);
 					} finally {}							
-				}				
+				//}				
 			}			
 		});
-		t1.start();
-		
-		final long[] arr = new long[1]; 
-		Thread t2 = new Thread(new Runnable(){
-			public void run() {
-				while (true) {
-					try {
-						Thread.currentThread().sleep(1000);
-					} catch (InterruptedException e1) {
-					}
-					List<byte[]> list = null;
-					try {
-						//System.out.println("----------");			
-						long offset = obj.getSegFileSize(topic, 1);
-						//System.out.println("pre:" + arr[0] + ";post:" + offset);
-						list = obj.readMessageData(topic, 1, offset - arr[0]);
-						arr[0] = offset;
-					} catch (IOException e) {
-					}
-					int count = 0;
-					if (list != null) {
-						System.out.print("sub:" + list.size());
-						for (byte[] item : list) {
-							count += item.length;
-							String[] arr = new String(item).split(";");
-							if (arr != null) {
-								for (String item1 : arr) {
-									//System.out.println(item1);
-								}
-							}
-						}
-					}
-				}
-			}			
-		});
-		t2.start();
+		//t1.start();
+		ObjectMessage message = new ObjectMessage();
+		message.setMessageId(5);
+		message.setSentTime(CommonUtils.formatRightNow());
+		message.setTopic(topic);
+		message.setSegmentId(1);
+		BizData data = new BizData();
+		data.setF1(22);
+		data.setF2("field 222");
+		message.setBizData(data);
+		obj.writeMessageData(topic, 1, CommonUtils.makeUpByteArrayWithZero(message.toString()));
+	
 
 		/**
 		String result = "";

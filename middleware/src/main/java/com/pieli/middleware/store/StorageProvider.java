@@ -41,7 +41,7 @@ public class StorageProvider {
 		
 	private static final Map<SegFile, FileChannelInfo> _readFileChannelMap = new HashMap<SegFile, FileChannelInfo>();
 	private static final int _bulkSize = 512;
-	private static final String _storePathPrefix = "/store/message/";	
+	private static final String _storePathPrefix = "e:/store/message/";	
 	private static final int _readFileChannelOverDue = 2000; //milli seconds
 	/**
 	 * 
@@ -49,8 +49,8 @@ public class StorageProvider {
 	* <p>Description: </p>
 	 */
 	public StorageProvider(){
-		Timer timer = new Timer();
-		timer.schedule(new TimerTask(){
+		Timer checkSegFileExpire = new Timer();
+		checkSegFileExpire.schedule(new TimerTask(){
 			@SuppressWarnings("resource")
 			@Override
 			public void run() {
@@ -60,7 +60,8 @@ public class StorageProvider {
 					SegFile key = entry.getKey();
 					FileChannelInfo val = entry.getValue();
 					if(val.getUpdateTime() != null 
-							&& !CommonUtils.beforeNowTime(val.getUpdateTime(), _readFileChannelOverDue)){
+							&& CommonUtils.beforeNowTime(val.getUpdateTime(), _readFileChannelOverDue) //
+							){
 						try {
 							FileChannel channel = new RandomAccessFile(generateFilePath(key), "r").getChannel();
 							FileChannelInfo info = new FileChannelInfo();
@@ -74,7 +75,7 @@ public class StorageProvider {
 						}
 					}
 				}
-			}}, 1000, 1000);
+			}}, 500, 500);  //500毫秒
 	}
 	
 	/**
@@ -117,6 +118,7 @@ public class StorageProvider {
 				channel.write(byteBuffer);
 			}		
 		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
 			if(channel != null){
 				channel.close();
@@ -187,16 +189,20 @@ public class StorageProvider {
 	public long getSegFileSize(String topic , int segmentId){
 		
 		SegFile key = new SegFile(topic, segmentId);
-		
-		FileChannelInfo channelInfo = null;
-		if(_readFileChannelMap.get(key) != null){
-			channelInfo = _readFileChannelMap.get(key);
-			try {
-				return channelInfo.getChannel().size();
-			} catch (IOException e) {
-				LoggerUtils.logExceptionDetail(e.toString(), e);
+		FileChannel channel = null;
+		try {
+			channel = new RandomAccessFile(generateFilePath(key), "r").getChannel();
+			return channel.size();
+		} catch (Exception e) {
+		}finally {
+			if(channel != null){
+				try {
+					channel.close();
+				} catch (IOException e) {
+				}
 			}
 		}
+		
 		return 0;
 	}
 	
@@ -210,7 +216,10 @@ public class StorageProvider {
 	* @throws
 	 */
 	private String generateFilePath(SegFile seg){
-		return _storePathPrefix + seg.getTopic().hashCode() + "_" + seg.getSegmentId();
+		if(CommonUtils.isCurrentSystemWindows()){
+			return _storePathPrefix + seg.getTopic().hashCode() + "_" + seg.getSegmentId();
+		}
+		return _storePathPrefix.substring(2) + seg.getTopic().hashCode() + "_" + seg.getSegmentId();
 	}
 	
 	/**
