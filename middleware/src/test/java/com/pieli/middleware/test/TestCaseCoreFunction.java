@@ -3,7 +3,7 @@ package com.pieli.middleware.test;
 import java.io.IOException;
 import java.util.List;
 
-import com.pieli.middleware.AsynchronousWriterQueue;
+import com.pieli.middleware.core.AsynchronousWriterQueue;
 import com.pieli.middleware.data.GlobalData;
 import com.pieli.middleware.data.ObjectMessage;
 import com.pieli.middleware.store.StorageProvider;

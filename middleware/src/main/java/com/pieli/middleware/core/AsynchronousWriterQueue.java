@@ -6,11 +6,9 @@
  * @date 2013-3-23 下午12:07:22
  * @version V1.0 
  */
-package com.pieli.middleware;
+package com.pieli.middleware.core;
 
-import java.beans.IntrospectionException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -19,7 +17,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
-
 import com.pieli.middleware.data.GlobalData;
 import com.pieli.middleware.data.Message;
 import com.pieli.middleware.data.MessageSerializer;
@@ -28,7 +25,8 @@ import com.pieli.middleware.utils.CommonUtils;
 import com.pieli.middleware.utils.LoggerUtils;
 
 /**
- * @ClassName: WriterQueu
+ * 异步写消息队列
+ * @ClassName: WriterQueue
  * @Description: TODO
  * @date 2013-3-23 下午12:07:22
  * 
@@ -62,12 +60,12 @@ public class AsynchronousWriterQueue {
 				if(_pointer >= _threshHold
 						|| (_pointer != 0 
 						&& _flushTime != null 
-						&& CommonUtils.beforeNowTime(_flushTime, 1000 * 60))){  //间隔一分钟
+						&& CommonUtils.beforeNowTime(_flushTime, 500))){  //间隔500毫秒
 					bulkFlushData();
 				}
 				
 			}			
-		}, 200, 200);   // 200毫秒 
+		}, 100, 100);   // 100毫秒 
 	}
 	
 	/**
@@ -162,7 +160,6 @@ public class AsynchronousWriterQueue {
 						
 						StringBuilder combine = new StringBuilder();
 						if(list.size() > 0){
-							System.out.println("ist size:" + list.size());
 							for(Message item1: list){					
 								try {
 									String itemStr = MessageSerializer.serialize(item1);

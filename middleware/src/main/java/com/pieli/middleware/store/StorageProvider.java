@@ -29,7 +29,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import junit.framework.Assert;
 import com.pieli.middleware.utils.CommonUtils;
-import com.pieli.middleware.utils.LoggerUtils;
 
 /**
  * @ClassName: StorageProvider

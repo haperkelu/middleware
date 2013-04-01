@@ -9,6 +9,7 @@
 package com.pieli.middleware.utils;
 
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
@@ -18,9 +19,16 @@ import java.util.logging.Logger;
  * 
  */
 public class LoggerUtils {
-	public static final Logger logger =Logger.getLogger("Root");
+	public static  Logger logger;
 	static{
-		logger.setLevel(Level.ALL);
+		LogManager manager = LogManager.getLogManager();
+		try {
+			manager.readConfiguration(LoggerUtils.class.getResourceAsStream("/logging.properties"));
+			logger =Logger.getLogger("Common");
+			manager.addLogger(logger);
+		} catch (Exception e) {
+			e.printStackTrace(System.out);
+		} 
 	}
 	
 	/**
